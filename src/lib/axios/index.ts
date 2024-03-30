@@ -1,10 +1,9 @@
 import { getCookie } from "$lib/cookies";
 import axios from "axios";
-
-const baseURL = "http://localhost:8000";
+import { PUBLIC_BACKEND_BASEURL } from "$env/static/public";
 
 const instance = axios.create({
-    baseURL,
+    baseURL: PUBLIC_BACKEND_BASEURL,
     timeout: 15000,
 });
 
@@ -19,3 +18,5 @@ instance.interceptors.request.use(
     },
     (error) => Promise.reject(error),
 );
+
+export default instance;
