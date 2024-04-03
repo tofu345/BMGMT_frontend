@@ -37,10 +37,9 @@
     </button>
 
     {#if show}
-        <div
-            in:scale={{ duration: 100, start: 0.95 }}
-            out:scale={{ duration: 100, start: 0.95 }}
-        >
+        <div>
+            <!-- in:scale={{ duration: 100, start: 0.95 }} -->
+            <!-- out:scale={{ duration: 100, start: 0.95 }} -->
             <slot name="contents" />
         </div>
     {/if}

@@ -11,6 +11,8 @@ export interface Location {
     name: string;
     address: string;
     rooms: Room[] | null;
+    admins: string[];
+    fetched: boolean;
 }
 
 export interface User {

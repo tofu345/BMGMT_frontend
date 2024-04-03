@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { goto, invalidate, invalidateAll } from "$app/navigation";
+    import { goto, invalidateAll } from "$app/navigation";
     import axios from "$lib/axios";
     import { setCookie } from "$lib/cookies";
     import user from "$lib/stores/user";
