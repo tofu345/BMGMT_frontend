@@ -17,4 +17,5 @@ export interface User {
     email: string;
     first_name: string;
     last_name: string;
+    admin_locations: Location[];
 }

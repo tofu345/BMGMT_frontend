@@ -20,6 +20,7 @@ export const getUser = async (): Promise<User | null> => {
             console.error(err);
             return err.response
         });
+    // console.log(res);
 
     if (res.status != 200) {
         return null;

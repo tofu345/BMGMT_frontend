@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
+    import { goto, invalidate, invalidateAll } from "$app/navigation";
     import axios from "$lib/axios";
     import { setCookie } from "$lib/cookies";
     import user from "$lib/stores/user";
@@ -9,8 +9,9 @@
     let errors: string | Object;
 
     async function onSubmit(e: SubmitEvent) {
-        const formData = new FormData(e.target as HTMLFormElement);
+        errors = "";
 
+        const formData = new FormData(e.target as HTMLFormElement);
         const data: { [key: string]: FormDataEntryValue } = {};
         for (let field of formData) {
             const [key, value] = field;
@@ -39,7 +40,7 @@
 
         setCookie("access", res.data.access);
         setCookie("refresh", res.data.refresh);
-        goto("/");
+        goto("/").then(() => invalidateAll());
         user.set(await getUser());
     }
 
@@ -50,7 +51,7 @@
     // });
 </script>
 
-{#if errors !== null && typeof errors === "object" && !Array.isArray(errors)}
+{#if typeof errors === "object" && !Array.isArray(errors)}
     {#each Object.entries(errors) as [key, value]}
         <p>{key}: {value}</p>
     {/each}
