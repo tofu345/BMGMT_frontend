@@ -4,6 +4,7 @@ export interface Room {
     user: User | null;
     owner: User | null;
     tenancy_end_date: Date;
+    options_visible: boolean;
 }
 
 export interface Location {

@@ -5,8 +5,8 @@
     import { createFloatingActions } from "svelte-floating-ui";
     import { offset, flip, shift } from "svelte-floating-ui/dom";
 
-    let show = false; // menu state
-    let menu: any; // menu wrapper DOM reference
+    export let shown = false;
+    let menu: any;
 
     const [floatingRef, floatingContent] = createFloatingActions({
         strategy: "absolute",
@@ -16,14 +16,14 @@
 
     onMount(() => {
         const handleOutsideClick = (event: any) => {
-            if (show && !menu.contains(event.target)) {
-                show = false;
+            if (shown && !menu.contains(event.target)) {
+                shown = false;
             }
         };
 
         const handleEscape = (event: any) => {
-            if (show && event.key === "Escape") {
-                show = false;
+            if (shown && event.key === "Escape") {
+                shown = false;
             }
         };
 
@@ -37,11 +37,11 @@
 </script>
 
 <div class="relative" bind:this={menu}>
-    <button use:floatingRef on:click={() => (show = !show)}>
+    <button use:floatingRef on:click={() => (shown = !shown)}>
         <slot name="toggle" />
     </button>
 
-    {#if show}
+    {#if shown}
         <div
             in:scale={{ duration: 100, start: 0.95 }}
             out:scale={{ duration: 100, start: 0.95 }}
