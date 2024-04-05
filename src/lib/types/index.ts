@@ -1,7 +1,7 @@
 export interface Room {
     id: number;
     name: string;
-    tenant: User | null;
+    user: User | null;
     owner: User | null;
     tenancy_end_date: Date;
 }
@@ -10,7 +10,7 @@ export interface Location {
     id: number;
     name: string;
     address: string;
-    rooms: Room[] | null;
+    rooms: Room[];
     admins: string[];
     fetched: boolean;
 }

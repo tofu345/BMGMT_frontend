@@ -2,9 +2,17 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { scale } from "svelte/transition";
+    import { createFloatingActions } from "svelte-floating-ui";
+    import { offset, flip, shift } from "svelte-floating-ui/dom";
 
     let show = false; // menu state
     let menu: any; // menu wrapper DOM reference
+
+    const [floatingRef, floatingContent] = createFloatingActions({
+        strategy: "absolute",
+        placement: "bottom",
+        middleware: [offset(6), flip(), shift()],
+    });
 
     onMount(() => {
         const handleOutsideClick = (event: any) => {
@@ -29,17 +37,17 @@
 </script>
 
 <div class="relative" bind:this={menu}>
-    <button
-        on:click={() => (show = !show)}
-        class="menu focus:outline-none focus:shadow-solid"
-    >
+    <button use:floatingRef on:click={() => (show = !show)}>
         <slot name="toggle" />
     </button>
 
     {#if show}
-        <div>
-            <!-- in:scale={{ duration: 100, start: 0.95 }} -->
-            <!-- out:scale={{ duration: 100, start: 0.95 }} -->
+        <div
+            in:scale={{ duration: 100, start: 0.95 }}
+            out:scale={{ duration: 100, start: 0.95 }}
+            class="z-10 absolute w-48 flex flex-col gap-1 p-1 bg-gray-100 rounded-lg border cursor-pointer text-sm"
+            use:floatingContent
+        >
             <slot name="contents" />
         </div>
     {/if}

@@ -4,6 +4,8 @@
     import user from "$lib/stores/user";
     import Select from "svelte-select";
     import type { Location, Room } from "$lib/types";
+    import Pagination from "$lib/Pagination.svelte";
+    import Dropdown from "$lib/Dropdown.svelte";
 
     async function getLocations() {
         let res = await axios
@@ -47,7 +49,9 @@
         getLocations();
     });
 
-    $: admin_locations = $user?.admin_locations.map((v) => v.name);
+    let admin_locations: string[];
+    $: if ($user?.admin_locations)
+        admin_locations = $user.admin_locations.map((v) => v.name);
 
     let locations: Location[] = [];
     let loading = true;
@@ -55,19 +59,17 @@
     let selected_location_name: any = null;
     $: fetchLocationInfo(selected_location_name);
 
-    let selected_rooms: Room[] = [];
-    $: if (selected_location) selected_rooms = selected_location.rooms || [];
-
     let filter = "";
-    $: if (selected_location?.rooms) {
+    let table_rows: Room[] = [];
+    let selected_rooms: Room[] = [];
+    $: if (selected_location) {
+        selected_rooms = selected_location.rooms;
         if (filter) {
             selected_rooms = selected_location.rooms.filter((v) => {
                 let n = v.name.toLowerCase();
                 let f = filter.toLowerCase();
                 return n.startsWith(f) || n.includes(f);
             });
-        } else {
-            selected_rooms = selected_location.rooms;
         }
     }
 
@@ -75,7 +77,7 @@
 </script>
 
 <div
-    class="text-black flex flex-col-reverse lg:flex-row lg:gap-7 max-w-[90%] mx-auto mt-5"
+    class="text-black flex flex-col lg:flex-row lg:gap-7 max-w-[90%] mx-auto my-5"
 >
     <div class="w-full h-full">
         <!-- Left -->
@@ -130,7 +132,7 @@
                     <input
                         type="text"
                         id="table-search"
-                        class="block py-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 flex align-top"
+                        class="block py-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 flex align-top"
                         placeholder="Filter"
                         bind:value={filter}
                     />
@@ -145,23 +147,32 @@
                     <span class="mx-1">Refresh</span>
                 </button>
             </div>
+
             <div class="relative overflow-x-auto border rounded-lg">
-                <table class="w-full text-sm text-left">
+                <table class="w-full text-sm text-left overflow-hidden">
                     <thead class=" text-gray-700 bg-gray-50 border-b">
                         <tr>
-                            <th scope="col" class="px-6 py-3"> Room </th>
-                            <th scope="col" class="px-6 py-3"> Tenant </th>
+                            <th scope="col" class="px-6 py-2"> Room </th>
+                            <th scope="col" class="px-6 py-2"> Tenant </th>
+                            <!-- <th scope="col" class="py-2"> </th> -->
                         </tr>
                     </thead>
                     <tbody>
-                        {#each selected_rooms as room}
-                            <tr
-                                class="odd:bg-white even:bg-gray-50 bg-white border-b"
-                            >
-                                <td class="px-6 py-4"> {room.name} </td>
-                                <td class="px-6 py-4">
-                                    {room.tenant?.email || "-"}
+                        {#each table_rows as row}
+                            <tr class="bg-white border-b">
+                                <td class="px-6 py-2"> {row.name} </td>
+                                <td class="px-6 py-2">
+                                    {#if row.user}
+                                        {row.user.first_name}
+                                        {row.user.last_name}
+                                    {/if}
                                 </td>
+                                <!-- <td class="py-2 flex gap-3 justify-end mr-4"> -->
+                                <!--     <img -->
+                                <!--         src="/svgs/dropdown.svg" -->
+                                <!--         alt="dropdown" -->
+                                <!--     /> -->
+                                <!-- </td> -->
                             </tr>
                         {/each}
                     </tbody>
@@ -170,14 +181,26 @@
                     <div
                         class="bg-gray-300 rounded-b-lg h-96 w-full flex justify-center items-center"
                     >
-                        <div class="text-gray-700">Nothing to see here</div>
+                        <div class="text-gray-700">No Data</div>
                     </div>
                 {/if}
+
+                <Pagination
+                    rows={selected_rooms}
+                    perPage={10}
+                    bind:trimmedRows={table_rows}
+                />
             </div>
         {/if}
     </div>
-    <div class="w-full h-full lg:w-[45%]">
+
+    <div class="w-full h-full lg:w-[45%] lg:mt-0 mt-5">
         <!-- Right -->
+        <div
+            class="bg-gray-300 rounded-lg h-96 w-full flex justify-center items-center"
+        >
+            <div class="text-gray-700">Issues</div>
+        </div>
     </div>
 </div>
 

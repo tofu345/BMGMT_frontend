@@ -20,11 +20,7 @@
                         alt="user icon"
                     />
 
-                    <div
-                        slot="contents"
-                        class="origin-top-right absolute right-0 w-48 flex flex-col gap-1
-                        p-1 bg-gray-100 rounded-lg border cursor-pointer text-sm"
-                    >
+                    <div slot="contents">
                         <a href="/settings" class="dropdown-content">
                             Settings
                         </a>
