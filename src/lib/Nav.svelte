@@ -11,7 +11,7 @@
     </div>
     <div class="h-full w-full mx-3 flex justify-end items-center gap-2">
         {#if $user}
-            <div class="rounded-full w-9 h-9 p-1 relative z-10">
+            <div class="rounded-full w-9 h-9 p-1 z-10">
                 <Dropdown>
                     <img
                         slot="toggle"

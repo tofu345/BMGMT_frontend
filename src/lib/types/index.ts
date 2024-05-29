@@ -14,6 +14,7 @@ export interface Location {
     rooms: Room[];
     admins: string[];
     fetched: boolean;
+    issues: Issues[];
 }
 
 export interface User {
@@ -21,4 +22,16 @@ export interface User {
     first_name: string;
     last_name: string;
     admin_locations: Location[];
+}
+
+enum IssueType {
+    Electrical = "electrical",
+    Plumbing = "plumbing",
+}
+
+export interface Issues {
+    issue_type: IssueType;
+    info: string;
+    room: Room;
+    resolved: boolean;
 }

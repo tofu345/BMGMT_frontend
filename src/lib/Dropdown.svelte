@@ -10,7 +10,7 @@
 
     const [floatingRef, floatingContent] = createFloatingActions({
         strategy: "absolute",
-        placement: "bottom",
+        placement: "bottom-end",
         middleware: [offset(6), flip(), shift()],
     });
 
@@ -37,7 +37,11 @@
 </script>
 
 <div class="relative" bind:this={menu}>
-    <button use:floatingRef on:click={() => (shown = !shown)}>
+    <button
+        class="w-full h-full"
+        use:floatingRef
+        on:click={() => (shown = !shown)}
+    >
         <slot name="toggle" />
     </button>
 

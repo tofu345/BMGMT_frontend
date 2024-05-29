@@ -17,10 +17,8 @@ export const getUser = async (): Promise<User | null> => {
         .get("/user")
         .then((res) => res)
         .catch((err) => {
-            // console.error(err);
             return err.response
         });
-    // console.log(res);
 
     if (res.status != 200) {
         return null;

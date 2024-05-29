@@ -20,27 +20,34 @@
     }
 
     async function fetchLocationInfo(loc_data: any) {
-        let locs = Object.values(locations);
-        let idx = locs.findIndex((v) => v.name === loc_data?.value);
-        let location = locs[idx];
+        let idx = locations.findIndex((v) => v.name === loc_data?.value);
+        let location = locations[idx];
         if (!location) {
             return;
         }
         if (location.fetched) {
-            selected_location = locations[idx];
+            selected_location_idx = idx;
             return;
         }
 
         loading = true;
         let res = await axios
+            .get(`locations/${location.id}/issues`)
+            .then((res) => res)
+            .catch((err) => err);
+        if (res.status === 200) {
+            locations[idx].issues = res.data;
+        }
+
+        res = await axios
             .get(`/locations/${location?.id}`)
-            .then((err) => err)
+            .then((res) => res)
             .catch((err) => err);
         if (res.status === 200) {
             locations[idx].fetched = true;
             locations[idx].rooms = res.data.rooms;
             locations[idx].admins = res.data.admins;
-            selected_location = locations[idx];
+            selected_location_idx = idx;
         }
         loading = false;
     }
@@ -53,23 +60,26 @@
     $: if ($user?.admin_locations)
         admin_locations = $user.admin_locations.map((v) => v.name);
 
-    let locations: Location[] = [];
     let loading = true;
-    let selected_location: Location | null = null;
+    let locations: Location[] = [];
     let selected_location_name: any = null;
+    let selected_location_idx: number | null = null;
     $: fetchLocationInfo(selected_location_name);
 
     let filter = "";
     let table_rows: Room[] = [];
     let selected_rooms: Room[] = [];
-    $: if (selected_location) {
-        selected_rooms = selected_location.rooms;
+    $: if (selected_location_idx) {
         if (filter) {
-            selected_rooms = selected_location.rooms.filter((v) => {
-                let n = v.name.toLowerCase();
-                let f = filter.toLowerCase();
-                return n.startsWith(f) || n.includes(f);
-            });
+            selected_rooms = locations[selected_location_idx].rooms.filter(
+                (v) => {
+                    let n = v.name.toLowerCase();
+                    let f = filter.toLowerCase();
+                    return n.startsWith(f) || n.includes(f);
+                },
+            );
+        } else {
+            selected_rooms = locations[selected_location_idx].rooms;
         }
     }
 
@@ -94,6 +104,7 @@
             bind:value={selected_location_name}
             searchable={true}
             {loading}
+            on:clear={() => (selected_location_name = null)}
         >
             <div class="flex justify-center items-center" slot="loading-icon">
                 <span class="loader"></span>
@@ -130,7 +141,8 @@
                 <button
                     class="h-9 flex items-center px-4 text-white bg-gray-600 rounded-lg hover:bg-gray-500"
                     on:click={() => {
-                        locations.forEach((v) => (v.fetched = false));
+                        if (selected_location_idx)
+                            locations[selected_location_idx].fetched = false;
                         fetchLocationInfo(selected_location_name);
                     }}
                 >
@@ -198,11 +210,17 @@
 
     <div class="w-full h-full lg:w-[45%] lg:mt-0 mt-5">
         <!-- Right -->
-        <!-- <div -->
-        <!--     class="bg-gray-300 rounded-lg h-96 w-full flex justify-center items-center" -->
-        <!-- > -->
-        <!--     <div class="text-gray-700">Issues</div> -->
-        <!-- </div> -->
+        <!-- {#if selected_location_name && selected_location_idx} -->
+        <!--     {#each locations[selected_location_idx].issues as issue} -->
+        <!--         <div>{issue.issue_type}</div> -->
+        <!--     {/each} -->
+        <!-- {:else} -->
+        <div
+            class="bg-gray-300 rounded-lg h-96 w-full flex justify-center items-center"
+        >
+            <div class="text-gray-700">No issues</div>
+        </div>
+        <!-- {/if} -->
     </div>
 </div>
 
