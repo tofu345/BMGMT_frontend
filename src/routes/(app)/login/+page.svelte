@@ -2,8 +2,8 @@
     import { goto, invalidateAll } from "$app/navigation";
     import axios from "$lib/axios";
     import { setCookie } from "$lib/cookies";
-    import user from "$lib/stores/user";
-    import { getUser } from "$lib/utils/user";
+    import { setUser } from "$lib/stores/user.svelte";
+    import { requestUserData } from "$lib/utils/user";
     import { onMount } from "svelte";
 
     let errors: string | Object;
@@ -41,7 +41,7 @@
         setCookie("access", res.data.access);
         setCookie("refresh", res.data.refresh);
         goto("/").then(() => invalidateAll());
-        user.set(await getUser());
+        setUser(await requestUserData());
     }
 
     // onMount(() => {

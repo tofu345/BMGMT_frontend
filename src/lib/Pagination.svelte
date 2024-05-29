@@ -1,23 +1,30 @@
 <!-- https://svelte.dev/repl/84a8d64a6f1e49feba8f6a491ecc55f5?version=3.35.0 -->
 <script lang="ts">
-    export let rows: any;
-    export let perPage: number;
-    export let trimmedRows: any;
+    let {
+        rows,
+        perPage,
+        start = $bindable(),
+        end = $bindable(),
+    }: any = $props();
 
     const directions = ["n", "ne", "e", "se", "s", "sw", "w", "nw"];
-    let currentPage = 0;
-    $: totalRows = rows.length;
-    $: totalPages = Math.ceil(totalRows / perPage);
-    $: start = currentPage * perPage;
-    $: end =
-        currentPage === totalPages - 1 ? totalRows - 1 : start + perPage - 1;
-    $: trimmedRows = rows.slice(start, end + 1);
+    let currentPage = $state(0);
+    let totalRows = $derived(rows.length);
+    let totalPages = $derived(Math.ceil(totalRows / perPage));
+
+    $effect(() => {
+        start = currentPage * perPage;
+        end =
+            currentPage === totalPages - 1
+                ? totalRows - 1
+                : start + perPage - 1;
+    });
 </script>
 
 {#if totalRows && totalRows > perPage}
     <div class="pagination py-1">
         <button
-            on:click={() => (currentPage -= 1)}
+            onclick={() => (currentPage -= 1)}
             disabled={currentPage === 0}
             aria-label="left arrow icon"
             aria-describedby="prev"
@@ -40,7 +47,7 @@
         <span id="prev" class="sr-only">Load previous {perPage} rows</span>
         <p>{start + 1} - {end + 1} of {totalRows}</p>
         <button
-            on:click={() => (currentPage += 1)}
+            onclick={() => (currentPage += 1)}
             disabled={currentPage === totalPages - 1}
             aria-label="right arrow icon"
             aria-describedby="next"

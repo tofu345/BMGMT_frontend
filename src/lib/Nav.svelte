@@ -1,5 +1,5 @@
 <script lang="ts">
-    import user from "$lib/stores/user";
+    import { getUser } from "$lib/stores/user.svelte";
     import Dropdown from "./Dropdown.svelte";
 </script>
 
@@ -10,7 +10,7 @@
         </a>
     </div>
     <div class="h-full w-full mx-3 flex justify-end items-center gap-2">
-        {#if $user}
+        {#if getUser()}
             <div class="rounded-full w-9 h-9 p-1 z-10">
                 <Dropdown>
                     <img

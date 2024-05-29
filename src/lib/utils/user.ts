@@ -3,7 +3,7 @@ import axios from "$lib/axios";
 import { getCookie } from "$lib/cookies";
 import type { User } from "$lib/types";
 
-export const getUser = async (): Promise<User | null> => {
+export const requestUserData = async (): Promise<User | null> => {
     if (!browser) {
         return null;
     }

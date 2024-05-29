@@ -1,7 +1,7 @@
 <script lang="ts">
     import axios from "$lib/axios";
     import { onMount } from "svelte";
-    import user from "$lib/stores/user";
+    import { getUser } from "$lib/stores/user.svelte";
     import Select from "svelte-select";
     import type { Location, Room } from "$lib/types";
     import Pagination from "$lib/Pagination.svelte";
@@ -56,34 +56,41 @@
         getLocations();
     });
 
-    let admin_locations: string[];
-    $: if ($user?.admin_locations)
-        admin_locations = $user.admin_locations.map((v) => v.name);
+    let admin_locations = $state([""]);
 
-    let loading = true;
+    $effect(() => {
+        let user = getUser();
+        if (user?.admin_locations)
+            admin_locations = user.admin_locations.map((v) => v.name);
+    });
+
+    let loading = $state(true);
     let locations: Location[] = [];
-    let selected_location_name: any = null;
-    let selected_location_idx: number | null = null;
-    $: fetchLocationInfo(selected_location_name);
+    let selected_location_name: string | null = $state(null);
+    let selected_location_idx: number | null = $state(null);
+    $effect(() => {
+        fetchLocationInfo(selected_location_name);
+    });
 
-    let filter = "";
-    let table_rows: Room[] = [];
-    let selected_rooms: Room[] = [];
-    $: if (selected_location_idx) {
-        if (filter) {
-            selected_rooms = locations[selected_location_idx].rooms.filter(
-                (v) => {
-                    let n = v.name.toLowerCase();
-                    let f = filter.toLowerCase();
-                    return n.startsWith(f) || n.includes(f);
-                },
-            );
-        } else {
-            selected_rooms = locations[selected_location_idx].rooms;
+    let filter = $state("");
+    let rows: Room[] = $state([]);
+    let rows_start = $state(0);
+    let rows_end = $state(0);
+    let paginatedRows: Room[] = $derived(rows.slice(rows_start, rows_end + 1));
+    $effect(() => {
+        if (!selected_location_idx) {
+            return;
         }
-    }
+        if (!filter) {
+            rows = locations[selected_location_idx].rooms;
+        }
 
-    // $: console.log(locations);
+        rows = locations[selected_location_idx].rooms.filter((v) => {
+            let n = v.name.toLowerCase();
+            let f = filter.toLowerCase();
+            return n.startsWith(f) || n.includes(f);
+        });
+    });
 </script>
 
 <div
@@ -140,7 +147,7 @@
                 </div>
                 <button
                     class="h-9 flex items-center px-4 text-white bg-gray-600 rounded-lg hover:bg-gray-500"
-                    on:click={() => {
+                    onclick={() => {
                         if (selected_location_idx)
                             locations[selected_location_idx].fetched = false;
                         fetchLocationInfo(selected_location_name);
@@ -160,7 +167,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {#each table_rows as row}
+                        {#each paginatedRows as row}
                             <tr class="bg-white border-b">
                                 <td class="px-6 py-2"> {row.name} </td>
                                 <td class="px-6 py-2">
@@ -191,7 +198,7 @@
                     </tbody>
                 </table>
 
-                {#if !selected_rooms.length}
+                {#if !rows.length}
                     <div
                         class="bg-gray-300 rounded-b-lg h-96 w-full flex justify-center items-center"
                     >
@@ -200,9 +207,10 @@
                 {/if}
 
                 <Pagination
-                    rows={selected_rooms}
+                    {rows}
                     perPage={10}
-                    bind:trimmedRows={table_rows}
+                    bind:start={rows_start}
+                    bind:end={rows_end}
                 />
             </div>
         {/if}
